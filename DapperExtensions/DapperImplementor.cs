@@ -201,7 +201,12 @@ namespace DapperExtensions
 
             foreach (var property in ReflectionHelper.GetObjectValues(entity).Where(property => columns.Any(c => c.Name == property.Key)))
             {
-                dynamicParameters.Add(property.Key, property.Value);
+                if (property.Value is null && entity?.GetType().GetProperties().FirstOrDefault(x => x.Name == property.Key)?.PropertyType == typeof(byte[]))
+                {
+                    dynamicParameters.Add(property.Key, property.Value, DbType.Binary);
+                }
+                else
+                    dynamicParameters.Add(property.Key, property.Value);
             }
 
             foreach (var parameter in parameters)
